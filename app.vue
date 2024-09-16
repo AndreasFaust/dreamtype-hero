@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-import Glyph from "./components/Glyph.vue";
+import fontlist from "./utils/fontlist";
 
 const color = { background: "#011408", lines: "#18401d", text: "#6bf88a" };
 
@@ -10,15 +9,26 @@ const step = ref(timeline[stepIndex.value]);
 const typeValue = ref("");
 const font = computed(() => {
   const fontname = step.value?.font || "mirage";
-  const currentFont = fonts[fontname];
-  console.log("currentFont", currentFont)
+  const currentFont = fontlist.find((font) => font.name === fontname);
+  // console.log("fontlist", fontlist);
+  // console.log("currentFont", currentFont);
+  if (!currentFont) return;
+  const height = currentFont.metrics.top + currentFont.metrics.bottom * -1;
+  // console.log("top", currentFont.metrics.top);
+  // console.log("bottom", currentFont.metrics.bottom);
+  // console.log("height", height);
 
-  const height = currentFont.metrics.top + (+currentFont.metrics.bottom);
-  console.log("height", height)
+  const capHeightFromTop =
+    height - (currentFont.metrics.capHeight + currentFont.metrics.bottom * -1);
+  const xHeightFromTop =
+    height - (currentFont.metrics.xHeight + currentFont.metrics.bottom * -1);
+
   return {
     name: currentFont.name,
-    baseline: (currentFont.metrics.bottom * -100) / height,
-  }
+    baseline: (currentFont.metrics.top * 100) / height,
+    capHeight: (capHeightFromTop * 100) / height,
+    xHeight: (xHeightFromTop * 100) / height,
+  };
 });
 
 function nextStep() {
@@ -68,38 +78,66 @@ onMounted(() => {
       background: color.background,
     }"
   >
-  <ClientOnly>
-    <p
-      class="relative w-full text-center text-[10vw] flex items-center justify-center whitespace-pre"
-      :style="{
-        color: color.text,
-        borderTop: `1px solid ${color.lines}`,
-        borderBottom: `1px solid ${color.lines}`,
-      }"
-    >
-      &shy;
-      <Glyph
-        v-for="(glyph, index) in typeValue"
-        :key="glyph + index"
-        :glyph
-        :animation="step?.animation"
-      />
-      <span
+    <ClientOnly>
+      <div
+        class="relative w-full"
         :style="{
-          animation: `blink 1s infinite`,
+          borderTop: `1px solid ${color.lines}`,
+          borderBottom: `1px solid ${color.lines}`,
         }"
-        class="block h-[1em] w-4 bg-blue-500"
-      />
-      <div id="baseline" class="absolute inset-x-0 h-[2px]" 
-        :style="{
-          top: font.baseline + '%', 
-          background: color.lines
-        }" 
-      />
-      <!-- <div id="xHeight" />
-      <div id="capHeight" /> -->
-    </p>
-  </ClientOnly>
+      >
+        <p
+          class="relative z-20 text-center text-[10vw] flex items-center justify-center whitespace-pre"
+          :style="{
+            color: color.text,
+            lineHeight: 'normal',
+            fontFamily: font?.name,
+          }"
+        >
+          &shy;
+          <span
+            v-for="(glyph, index) in typeValue"
+            :key="glyph + index"
+            :style="{
+              animation:
+                step.animation &&
+                `${step.animation.type} ${step.animation.speed}ms`,
+            }"
+            >{{ glyph }}</span
+          >
+          <span
+            :style="{
+              animation: `blink 1s infinite`,
+            }"
+            class="block h-[1em] w-4 bg-blue-500"
+          />
+        </p>
+        <div
+          id="baseline"
+          class="absolute z-10 inset-x-0 h-px transition-all"
+          :style="{
+            top: font?.baseline + '%',
+            background: color.lines,
+          }"
+        />
+        <div
+          id="xHeight"
+          class="absolute z-10 inset-x-0 h-px transition-all"
+          :style="{
+            top: font?.xHeight + '%',
+            background: color.lines,
+          }"
+        />
+        <div
+          id="capHeight"
+          class="absolute z-10 inset-x-0 h-px transition-all"
+          :style="{
+            top: font?.capHeight + '%',
+            background: color.lines,
+          }"
+        />
+      </div>
+    </ClientOnly>
   </main>
 </template>
 
@@ -111,6 +149,16 @@ onMounted(() => {
   }
   50% {
     opacity: 1;
+  }
+}
+@keyframes blur {
+  from {
+    opacity: 0;
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0px);
   }
 }
 </style>
