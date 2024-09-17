@@ -1,12 +1,12 @@
 @font-face {
-  font-family: "mirage";
-  src: url("/mirage.woff2") format("woff2");
+  font-family: "Mirage";
+  src: url("mirage.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: "mirage";
-  src: url("/index.woff2") format("woff2");
+  font-family: "Index";
+  src: url("index.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }

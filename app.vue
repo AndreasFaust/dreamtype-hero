@@ -1,22 +1,37 @@
 <script setup lang="ts">
-import fontlist from "./utils/fontlist";
+import { nanoid } from "nanoid";
+import fontlist, { type Font } from "./utils/fontlist";
+import "/assets/fonts.css";
+
+type FontTransformed = {
+  name: string;
+  baseline: number;
+  capHeight: number;
+  xHeight: number;
+};
 
 const color = { background: "#011408", lines: "#18401d", text: "#6bf88a" };
 
 const charIndex = ref(0);
 const stepIndex = ref(0);
 const step = ref(timeline[stepIndex.value]);
-const typeValue = ref("");
-const font = computed(() => {
-  const fontname = step.value?.font || "mirage";
+const typeValue = ref(
+  [] as {
+    id: string;
+    value: string;
+    animation?: { type: string; speed: number; clear?: boolean };
+  }[]
+);
+const font = ref<FontTransformed | undefined>(
+  updateFont(timeline[0].font || "Mirage")
+);
+
+function updateFont(fontname: string): FontTransformed | undefined {
   const currentFont = fontlist.find((font) => font.name === fontname);
-  // console.log("fontlist", fontlist);
-  // console.log("currentFont", currentFont);
+
   if (!currentFont) return;
+
   const height = currentFont.metrics.top + currentFont.metrics.bottom * -1;
-  // console.log("top", currentFont.metrics.top);
-  // console.log("bottom", currentFont.metrics.bottom);
-  // console.log("height", height);
 
   const capHeightFromTop =
     height - (currentFont.metrics.capHeight + currentFont.metrics.bottom * -1);
@@ -29,26 +44,53 @@ const font = computed(() => {
     capHeight: (capHeightFromTop * 100) / height,
     xHeight: (xHeightFromTop * 100) / height,
   };
-});
+}
 
 function nextStep() {
   step.value = timeline[stepIndex.value + 1];
   stepIndex.value += 1;
   if (!step.value) return;
+  if (step.value.font && step.value.font !== font.value?.name) {
+    font.value = updateFont(step.value.font);
+  }
   if (step.value.reset) {
     stepIndex.value = 0;
     charIndex.value = 0;
   }
   if (step.value?.text) {
     typeText();
-  } else {
+  }
+  if (step.value?.erase) {
     eraseText();
+  }
+  if (step.value?.animation) {
+    if (step.value?.animation.type === "weight") {
+      charIndex.value = 0;
+      animateWeight();
+    }
+  }
+}
+
+function animateWeight() {
+  if (charIndex.value < (typeValue.value?.length || 0)) {
+    charIndex.value += 1;
+    typeValue.value[charIndex.value - 1].id = nanoid();
+    typeValue.value[charIndex.value - 1].animation = step.value.animation;
+    setTimeout(animateWeight, step.value.speed);
+  } else {
+    setTimeout(nextStep, step.value.end);
   }
 }
 
 function typeText() {
-  if (charIndex.value < step.value.text.length) {
-    typeValue.value += step.value.text[charIndex.value];
+  if (charIndex.value < (step.value.text?.length || 0)) {
+    if (step.value.text?.[charIndex.value]) {
+      typeValue.value.push({
+        id: nanoid(),
+        value: step.value.text?.[charIndex.value],
+        animation: step.value.animation,
+      });
+    }
     charIndex.value += 1;
     setTimeout(typeText, step.value.speed);
   } else {
@@ -58,7 +100,7 @@ function typeText() {
 
 function eraseText() {
   if (charIndex.value > 0) {
-    typeValue.value = typeValue.value.substring(0, charIndex.value - 1);
+    typeValue.value.pop();
     charIndex.value -= 1;
     setTimeout(eraseText, step.value.erase);
   } else {
@@ -96,15 +138,25 @@ onMounted(() => {
         >
           &shy;
           <span
-            v-for="(glyph, index) in typeValue"
-            :key="glyph + index"
+            v-for="{ id, value, animation } in typeValue"
+            :key="id"
             :style="{
               animation:
-                step.animation &&
-                `${step.animation.type} ${step.animation.speed}ms`,
+                animation && `${animation.type} ${animation.speed}ms forwards`,
             }"
-            >{{ glyph }}</span
+            @animationend="
+              () => {
+                if (animation?.clear) {
+                  const thisGlyph = typeValue.find((value) => value.id === id);
+                  if (thisGlyph) {
+                    thisGlyph.animation = undefined;
+                  }
+                }
+              }
+            "
+            >{{ value }}</span
           >
+
           <span
             :style="{
               animation: `blink 1s infinite`,
@@ -159,6 +211,14 @@ onMounted(() => {
   to {
     opacity: 1;
     filter: blur(0px);
+  }
+}
+@keyframes weight {
+  0% {
+    font-variation-settings: "wght" 400;
+  }
+  100% {
+    font-variation-settings: "wght" 900;
   }
 }
 </style>

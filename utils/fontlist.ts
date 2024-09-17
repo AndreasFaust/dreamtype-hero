@@ -1,4 +1,4 @@
-type Font = {
+export type Font = {
   name: string;
   metrics: {
     bottom: number;
@@ -7,11 +7,16 @@ type Font = {
     capHeight: number;
     top: number;
   };
+  weight?: {
+    default: number;
+    min: number;
+    max: number;
+  };
 };
 
 const fontlist: Font[] = [
   {
-    name: "mirage",
+    name: "Mirage",
     metrics: {
       bottom: -494,
       baseline: 0,
@@ -19,9 +24,14 @@ const fontlist: Font[] = [
       capHeight: 1440,
       top: 1950,
     },
+    weight: {
+      default: 400,
+      min: 100,
+      max: 900,
+    },
   },
   {
-    name: "index",
+    name: "Index",
     metrics: {
       bottom: -620,
       baseline: 0,

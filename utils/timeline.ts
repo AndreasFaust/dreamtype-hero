@@ -6,6 +6,7 @@ type Step = {
   animation?: {
     type: string;
     speed: number;
+    clear?: boolean;
   };
   erase?: number;
   reset?: boolean;
@@ -14,12 +15,20 @@ type Step = {
 const timeline: Step[] = [
   {
     text: "Hello World!",
-    font: "mirage",
+    font: "Mirage",
     speed: 100,
-    end: 1000,
     animation: {
       type: "blur",
       speed: 500,
+      clear: true,
+    },
+  },
+  {
+    speed: 200,
+    end: 1000,
+    animation: {
+      type: "weight",
+      speed: 1000,
     },
   },
   {
@@ -28,14 +37,14 @@ const timeline: Step[] = [
   },
   {
     text: "I bims!",
-    font: "index",
+    font: "Index",
     speed: 100,
     end: 1000,
   },
-  // {
-  //   erase: 100,
-  // },
-  // { reset: true },
+  {
+    erase: 100,
+  },
+  { reset: true },
 ];
 
 export default timeline;
