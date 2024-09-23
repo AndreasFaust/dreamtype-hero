@@ -1,28 +1,14 @@
-export type Font = {
-  name: string;
-  metrics: {
-    bottom: number;
-    baseline: number;
-    xHeight: number;
-    capHeight: number;
-    top: number;
-  };
-  weight?: {
-    default: number;
-    min: number;
-    max: number;
-  };
-};
+import type { Font } from "~/components/types";
 
 const fontlist: Font[] = [
   {
     name: "Mirage",
     metrics: {
-      bottom: -494,
+      bottom: -502,
       baseline: 0,
       xHeight: 1066,
       capHeight: 1440,
-      top: 1950,
+      top: 1942,
     },
     weight: {
       default: 400,

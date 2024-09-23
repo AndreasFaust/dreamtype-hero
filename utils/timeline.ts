@@ -1,16 +1,4 @@
-type Step = {
-  text?: string;
-  font?: string;
-  speed?: number;
-  end?: number;
-  animation?: {
-    type: string;
-    speed: number;
-    clear?: boolean;
-  };
-  erase?: number;
-  reset?: boolean;
-};
+import type { Step } from "~/components/types";
 
 const timeline: Step[] = [
   {
