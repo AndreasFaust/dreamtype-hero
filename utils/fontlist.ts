@@ -19,11 +19,11 @@ const fontlist: Font[] = [
   {
     name: "Index",
     metrics: {
-      bottom: -620,
+      bottom: -507,
       baseline: 0,
-      xHeight: 1453,
-      capHeight: 1966,
-      top: 2196,
+      xHeight: 1057,
+      capHeight: 1430,
+      top: 1937,
     },
   },
 ];

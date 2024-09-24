@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.12.1",
+    "clsx": "^2.1.1",
     "nanoid": "^5.0.7",
     "nuxt": "^3.13.0",
+    "tailwind-merge": "^2.5.2",
     "vue": "latest",
     "vue-router": "latest"
   }

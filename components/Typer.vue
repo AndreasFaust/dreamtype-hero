@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
 import type { Font, Step } from "./types";
+import Line from "./Line.vue";
 
 defineProps<{
   fontList: Font[];
@@ -177,29 +178,23 @@ onMounted(() => {
             class="block h-[1em] w-4 bg-blue-500 rounded-full"
           />
         </p>
-        <div
+        <Line
           id="baseline"
-          class="absolute z-10 inset-x-0 h-px transition-all"
-          :style="{
-            top: font?.baseline + '%',
-            background: color.lines,
-          }"
+          label="Baseline"
+          :position="font?.baseline"
+          :color="{ text: color.text, line: color.lines }"
         />
-        <div
+        <Line
           id="xHeight"
-          class="absolute z-10 inset-x-0 h-px transition-all"
-          :style="{
-            top: font?.xHeight + '%',
-            background: color.lines,
-          }"
+          label="X-Height"
+          :position="font?.xHeight"
+          :color="{ text: color.text, line: color.lines }"
         />
-        <div
+        <Line
           id="capHeight"
-          class="absolute z-10 inset-x-0 h-px transition-all"
-          :style="{
-            top: font?.capHeight + '%',
-            background: color.lines,
-          }"
+          label="Cap Height"
+          :position="font?.capHeight"
+          :color="{ text: color.text, line: color.lines }"
         />
       </div>
     </ClientOnly>
