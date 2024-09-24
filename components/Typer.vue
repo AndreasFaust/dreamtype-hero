@@ -175,7 +175,7 @@ onMounted(() => {
               animation: `blink 1s infinite`,
               animationPlayState: typerBlink ? 'running' : 'paused',
             }"
-            class="block h-[1em] w-4 bg-blue-500 rounded-full"
+            class="block h-[1.1em] w-4 bg-blue-500 rounded-full"
           />
         </p>
         <Line
