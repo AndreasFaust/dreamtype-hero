@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
-import type { Font, Step } from "./types";
 import Line from "./Line.vue";
 
 defineProps<{
   fontList: Font[];
   timeline: Step[];
 }>();
-
-type FontTransformed = {
-  name: string;
-  baseline: number;
-  capHeight: number;
-  xHeight: number;
-};
 
 const color = { background: "#011408", lines: "#18401d", text: "#6bf88a" };
 
@@ -31,26 +23,6 @@ const font = ref<FontTransformed | undefined>(
   updateFont(timeline[0].font || "Mirage")
 );
 
-function updateFont(fontname: string): FontTransformed | undefined {
-  const currentFont = fontlist.find((font) => font.name === fontname);
-
-  if (!currentFont) return;
-
-  const height = currentFont.metrics.top + currentFont.metrics.bottom * -1;
-
-  const capHeightFromTop =
-    height - (currentFont.metrics.capHeight + currentFont.metrics.bottom * -1);
-  const xHeightFromTop =
-    height - (currentFont.metrics.xHeight + currentFont.metrics.bottom * -1);
-
-  return {
-    name: currentFont.name,
-    baseline: (currentFont.metrics.top * 100) / height,
-    capHeight: (capHeightFromTop * 100) / height,
-    xHeight: (xHeightFromTop * 100) / height,
-  };
-}
-
 const typerBlink = ref(false);
 
 function nextStep() {
@@ -64,6 +36,16 @@ function nextStep() {
     typerBlink.value = true;
     stepIndex.value = 0;
     charIndex.value = 0;
+  }
+  if (step.value.repeat) {
+    typerBlink.value = false;
+    charIndex.value = 0;
+    stepIndex.value = 0;
+    typeValue.value = [];
+    step.value = timeline[0];
+    font.value = updateFont(timeline[0].font || "Mirage");
+    setTimeout(typeText, timeline[0].speed);
+    return;
   }
   if (step.value?.text) {
     typerBlink.value = false;
@@ -142,7 +124,7 @@ onMounted(() => {
         }"
       >
         <p
-          class="relative z-20 text-center text-[10vw] flex items-center justify-center whitespace-pre"
+          class="relative z-20 text-center text-[10vw] flex items-center justify-center whitespace-pre select-none"
           :style="{
             color: color.text,
             lineHeight: 'normal',
@@ -169,33 +151,40 @@ onMounted(() => {
             "
             >{{ value }}</span
           >
-
           <span
             :style="{
               animation: `blink 1s infinite`,
               animationPlayState: typerBlink ? 'running' : 'paused',
+              opacity: !typerBlink ? 1 : undefined,
             }"
             class="block h-[1.1em] w-4 bg-blue-500 rounded-full"
           />
         </p>
-        <Line
-          id="baseline"
-          label="Baseline"
-          :position="font?.baseline"
-          :color="{ text: color.text, line: color.lines }"
-        />
-        <Line
-          id="xHeight"
-          label="X-Height"
-          :position="font?.xHeight"
-          :color="{ text: color.text, line: color.lines }"
-        />
-        <Line
-          id="capHeight"
-          label="Cap Height"
-          :position="font?.capHeight"
-          :color="{ text: color.text, line: color.lines }"
-        />
+        <template v-if="font">
+          <Line
+            v-if="font.descender"
+            v-bind="font.descender"
+            :color="{ text: color.text, line: color.lines }"
+          />
+          <Line
+            v-bind="font.baseline"
+            :color="{ text: color.text, line: color.lines }"
+          />
+          <Line
+            v-bind="font.xHeight"
+            :color="{ text: color.text, line: color.lines }"
+          />
+          <Line
+            v-bind="font.capHeight"
+            labelPosition="bottom"
+            :color="{ text: color.text, line: color.lines }"
+          />
+          <Line
+            v-if="font.ascender"
+            v-bind="font.ascender"
+            :color="{ text: color.text, line: color.lines }"
+          />
+        </template>
       </div>
     </ClientOnly>
   </main>

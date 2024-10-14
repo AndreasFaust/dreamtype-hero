@@ -1,4 +1,4 @@
-import type { Step } from "~/components/types";
+import type { Step } from "~/utils/types";
 
 const timeline: Step[] = [
   {
@@ -32,7 +32,7 @@ const timeline: Step[] = [
   {
     erase: 100,
   },
-  { reset: true },
+  { repeat: true },
 ];
 
 export default timeline;
